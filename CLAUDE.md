@@ -63,3 +63,5 @@ Flag these in one line with the exact next step, and never continue silently pas
   command for the person's Mac terminal; offer the website only when no command exists or the
   person is on iOS with no terminal.
 - Touches secrets, billing or production: draft it and leave the final step to the person.
+- Talk only at a stop or the end. A stop is a decision or step only the person can do: send one message, items numbered, each with a recommendation. Never ask in chat and carry on as if answered.
+- Person-only steps (secrets, website settings, merges, approvals): post as unticked tasks on the issue or PR, do all work that doesn't depend on them, never treat one as done until a read-only check or the person confirms. The final message lists them first under "Needs you".

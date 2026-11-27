@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "attribution": { "commit": "", "pr": "", "sessionUrl": false },
+  "permissions": {
+    "allow": [
+      "Edit(/<source dir>/**)",
+      "Edit(/<test dir>/**)",
+      "Edit(/docs/**)",
+      "Bash(<test cmd> *)",
+      "Bash(<lint cmd> *)",
+      "Bash(<format cmd> *)",
+      "Bash(<format check cmd> *)",
+      "Bash(<type check cmd> *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git switch *)",
+      "Bash(git checkout -b *)",
+      "Bash(gh issue view *)",
+      "Bash(gh issue list *)",
+      "Bash(gh issue create *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr diff *)"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(gh pr create *)",
+      "Bash(<install cmd> *)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Bash(rm -rf *)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard *)",
+      "Bash(sudo *)",
+      "Bash(curl *)",
+      "Bash(wget *)"
+    ]
+  },
+  "hooks": {
+    "PermissionRequest": [
+      { "matcher": "*", "hooks": [ { "type": "command",
+        "command": "{ cat; echo; } >> \"$CLAUDE_PROJECT_DIR/.claude/permission-log.jsonl\"" } ] }
+    ]
+  }
+}

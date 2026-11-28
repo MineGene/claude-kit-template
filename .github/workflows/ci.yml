@@ -10,6 +10,7 @@ permissions:
   contents: read
 jobs:
   check:
+    if: ${{ !github.event.repository.is_template }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

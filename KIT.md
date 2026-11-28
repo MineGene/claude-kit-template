@@ -652,6 +652,7 @@ permissions:
   contents: read
 jobs:
   check:
+    if: ${{ !github.event.repository.is_template }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -665,6 +666,8 @@ jobs:
       - run: <test command>
       - run: <dependency audit command, e.g. npm audit --audit-level=high>
 ```
+
+The `if` line skips the job in the template repo itself, where the placeholders cannot run; repos generated from the template run it. `maintenance.yml` has the same line.
 
 Also turn on Dependabot alerts at stage 4 (see How to set them, under Branch rules).
 
@@ -781,6 +784,7 @@ permissions:
   issues: write
 jobs:
   open-issue:
+    if: ${{ !github.event.repository.is_template }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

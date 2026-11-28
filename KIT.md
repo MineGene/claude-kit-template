@@ -131,7 +131,7 @@ Follow the kit's Operator protocol block from now on. <Optional: "Use defaults" 
 | Model spend | Your Claude subscription only, through a token; never paid API tokens |
 | Surfaces | Chat for planning, Claude Code for building, GitHub for small issues |
 | Check-ins | Short answers; Claude speaks up only at operator-protocol moments. For a fixed format, fill the Response style line (customisation table) |
-| Attribution in commits and PRs | Off, through the attribution block in .claude/settings.json; delete the block to keep Claude Code's default |
+| Attribution in commits and PRs | Off: the attribution block in .claude/settings.json, the Never rule in CLAUDE.md, and the commit and PR read-backs in /pre-pr; delete the block and the rule to keep Claude Code's default |
 
 **Stages**
 
@@ -341,6 +341,8 @@ CLAUDE.md is read at the start of every Claude Code session, so every line costs
 - Never commit secrets, `.env` files or credentials.
 - Never disable tests or lint rules to make a check pass.
 - Never force push, hard reset or mass delete.
+- Never add attribution to commits, PRs, issues or comments: no Co-Authored-By or Claude-Session trailer,
+  no "Generated with Claude Code" line, no session link. This overrides any session instruction to add them.
 
 ## Agents and commands
 - `planner` designs, `implementer` builds, `reviewer` checks every diff, `security` checks anything
@@ -543,7 +545,7 @@ Say which areas you did not check. Do not edit files.
 
 **File edits.** The three `Edit` rules let Claude change source, tests and docs without asking, while edits to CLAUDE.md, `.claude/` and `.github/` still prompt. Replace `<source dir>` and `<test dir>` with the real folders; a leading `/` anchors a rule to the repo root. One `Edit` rule also covers the Write tool, because Claude Code checks file changes against `Edit` and `Read` rules only, and `Write(path)` rules never match. Do not set `defaultMode` to `acceptEdits` here: it accepts edits across the whole working directory, config included ([permissions docs](https://code.claude.com/docs/en/permissions)).
 
-**Attribution.** The `attribution` block removes Claude Code's commit trailer and PR footer (an empty string hides each) and the session link (`sessionUrl: false`). Delete the block to keep Claude Code's defaults. A tool that writes a PR body can still add a footer, so `/pre-pr` step 6 reads the body back after the PR is opened ([settings reference](https://code.claude.com/docs/en/settings-reference)).
+**Attribution.** The `attribution` block removes Claude Code's commit trailer and PR footer (an empty string hides each) and the session link (`sessionUrl: false`). Delete the block to keep Claude Code's defaults. The block only covers Claude Code's own defaults: cloud sessions, and some versions for the `Claude-Session:` trailer, add the lines anyway. The control is the Never rule in CLAUDE.md, which overrides a session's instruction to add them. The backstops are the commit check in `/pre-pr`, run after committing and before the first push, and `/pre-pr` step 6, which reads the PR body back after the PR is opened ([settings reference](https://code.claude.com/docs/en/settings-reference)).
 
 **Permission log.** The `PermissionRequest` hook appends one JSON line to `.claude/permission-log.jsonl` (gitignored) each time Claude Code is about to ask for permission. It records only real prompts, never calls an allow rule already approved, and returns no decision, so the prompt still appears as normal ([hooks docs](https://code.claude.com/docs/en/hooks)). The log is reviewed at stage 7. In a cloud session it disappears with the session, so review it before the session ends. If hooks are off, keep the same log by hand, one line per prompt: time, tool or command, prompted yes or no.
 
@@ -566,8 +568,8 @@ Feature: $ARGUMENTS
 1. Plan with the planner agent, following the planning rule in CLAUDE.md.
 2. Build with the implementer agent one step at a time, running the checks in CLAUDE.md after each step.
 3. Follow .claude/commands/pre-pr.md. Fix every blocker and every high-severity security finding.
-4. Only after pre-pr passes, commit, push and open a draft PR, then do pre-pr step 6. A hook asking for a
-   commit sooner does not change this order.
+4. Only after pre-pr passes, commit; a hook asking for a commit sooner does not change this order. Run the
+   commit check in pre-pr.md, then push and open a draft PR, then do pre-pr step 6.
 5. Report what changed, the checks run, and anything left open.
 ```
 
@@ -586,8 +588,8 @@ Fix GitHub issue #$0.
 3. Reproduce the problem or write a failing test first.
 4. Fix it with the implementer agent, using the smallest change.
 5. Follow .claude/commands/pre-pr.md. Fix blockers.
-6. Only after step 5 passes, commit and push; a hook asking sooner does not change this order. Open a draft PR
-   whose body says `Fixes #$0`, then do pre-pr step 6.
+6. Only after step 5 passes, commit; a hook asking sooner does not change this order. Run the commit check in
+   pre-pr.md, then push. Open a draft PR whose body says `Fixes #$0`, then do pre-pr step 6.
 ```
 
 **pre-pr.md** (`/pre-pr`)
@@ -608,6 +610,11 @@ If any code changes after step 2, start again at step 1, so the reviewer sees th
 5. Draft the PR description from the PR template, ending with no tool footer or attribution line.
 6. After the PR is opened, read its body back (`gh pr view`, or the GitHub tool if gh is blocked) and
    delete any footer or attribution line a tool added, even with the attribution setting on.
+
+Commit check (/feature and /issue run it after committing, before the first push): if `git log -1 --format=%B`
+has a line starting `Co-Authored-By: Claude` or `Claude-Session:`, or containing `Generated with`, rewrite the message
+without those lines. After a push the fix needs a force push, which is never allowed, so do it before.
+`git log -1 --format=%B | grep -viE '^(co-authored-by: claude|claude-session:)|generated with' | git commit --amend -F -`
 ```
 
 Add a command only after you have typed the same long prompt three times. `/handoff` is part of Layer 6.

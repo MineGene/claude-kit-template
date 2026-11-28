@@ -361,9 +361,11 @@ Flag these in one line with the exact next step, and never continue silently pas
 - Needs a different model or effort: name it. Switch only between tasks; mid-task, run /handoff
   and start a new session on it.
 - The same fix failed twice: stop, summarise, and recommend a stronger model in a new session.
-- Session is long: a milestone is done, corrections repeat, earlier decisions slip, Claude Code's
-  /context shows over half used, or a chat passes about 20 exchanges or 3 large pastes:
-  "Start a new session", after /handoff.
+- Session is long: a milestone is done, the task changes, the chat has been compacted once,
+  corrections repeat, earlier decisions slip, Claude Code's /context shows over half used, or a
+  chat passes about 20 exchanges or 3 large pastes: "Start a new session", after /handoff.
+  Raise this unprompted at the first trigger, not when asked. No token counter is visible in chat:
+  state which trigger applied and that it is a judgement.
 - Small, well-specified and low risk: suggest an issue for @claude on GitHub.
 - Cannot do a step from here (blocked, or it needs the person's login or approval): give the exact
   command for the person's Mac terminal; offer the website only when no command exists or the
@@ -874,7 +876,7 @@ No signed-in terminal? Use the website instead: in the repo's Settings, open Rul
 
 Layer 6 makes Claude coach the person on model, effort, surface and sessions, and keeps work moving between sessions. Its rules are the Operator protocol block in the CLAUDE.md template (Layer 1), copied unchanged into the Claude Project instructions; this section adds only what the block cannot hold.
 
-Claude cannot see its own token use, so the session-length trigger uses checks anyone can count: over half used on /context in Claude Code, and about 20 exchanges or 3 large pastes in a chat. Planned boundaries are in the stage table's Session column. After stage 5, one Claude Code session covers one task, and every new session starts from the handoff comments on its issue or PR. In Claude Code the person can check with `/context`; `/compact` shrinks a session worth keeping and `/clear` starts clean. Set the main session's model and effort with `/model`; use /effort to change effort alone; subagents set their own in frontmatter.
+Claude cannot see its own token use, so the session-length trigger uses checks anyone can count: a task change or a chat compacted once, over half used on /context in Claude Code, and about 20 exchanges or 3 large pastes in a chat. Planned boundaries are in the stage table's Session column. After stage 5, one Claude Code session covers one task, and every new session starts from the handoff comments on its issue or PR. In Claude Code the person can check with `/context`; `/compact` shrinks a session worth keeping and `/clear` starts clean. Set the main session's model and effort with `/model`; use /effort to change effort alone; subagents set their own in frontmatter.
 
 **Which surface for which job**
 

@@ -17,9 +17,11 @@ Flag these in one line with the exact next step, and never continue silently pas
 - Needs a different model or effort: name it. Switch only between tasks; mid-task, run /handoff
   and start a new session on it.
 - The same fix failed twice: stop, summarise, and recommend a stronger model in a new session.
-- Session is long: a milestone is done, corrections repeat, earlier decisions slip, Claude Code's
-  /context shows over half used, or a chat passes about 20 exchanges or 3 large pastes:
-  "Start a new session", after /handoff.
+- Session is long: a milestone is done, the task changes, the chat has been compacted once,
+  corrections repeat, earlier decisions slip, Claude Code's /context shows over half used, or a
+  chat passes about 20 exchanges or 3 large pastes: "Start a new session", after /handoff.
+  Raise this unprompted at the first trigger, not when asked. No token counter is visible in chat:
+  state which trigger applied and that it is a judgement.
 - Small, well-specified and low risk: suggest an issue for @claude on GitHub.
 - Cannot do a step from here (blocked, or it needs the person's login or approval): give the exact
   command for the person's Mac terminal; offer the website only when no command exists or the

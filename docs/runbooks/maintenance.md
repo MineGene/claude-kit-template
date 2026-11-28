@@ -2,7 +2,7 @@
 
 Stop and ask a person if: a step would change billing, secrets or branch rules.
 
-Opened by the monthly maintenance issue.
+Opened by the monthly maintenance issue. Run on haiku at low effort; keep haiku sessions under 100k tokens (higher price above).
 
 1. Trim CLAUDE.md and AGENTS.md: delete anything Claude now does correctly without being told.
 2. Remove agents and commands that have not been used in a month, or whose instructions are now in CLAUDE.md or enforced by CI.

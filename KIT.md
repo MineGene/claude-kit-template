@@ -4,7 +4,7 @@ Nov 27, 2026 · @J
 
 Start every Claude project from this kit and change only what the customisation table allows. Every project then gets the same files, names, defaults and stage order, whoever runs it.
 
-Setup is two short rounds of questions, an approved brief, then fixed stages. Layers 1 to 5 are repo files; Layer 6 is the operator protocol that tells the person when to switch model, effort, surface or session. Last checked against the Claude Code and GitHub docs on 2026-11-27.
+Setup is two short rounds of questions, an approved brief, then fixed stages. Layers 1 to 5 are repo files; Layer 6 is the operator protocol that tells the person when to switch model, effort, surface or session. Last checked against the Claude Code, GitHub and Claude pricing docs on 2026-11-28.
 
 ## How to use this kit
 
@@ -128,7 +128,7 @@ Follow the kit's Operator protocol block from now on. <Optional: "Use defaults" 
 | Branch rules on `main` | Require a PR and the CI check; block force push and deletion; approvals 0 for one person, 1 for a team |
 | Merging | The person merges; auto-merge off until stage 10 |
 | GitHub automation | Automatic PR review, plus `@claude` on request |
-| Model spend | Your Claude subscription only, through a token; never paid API tokens |
+| Model spend | Your Claude subscription only, through a token; never paid API tokens; no fast mode (2x price), no Fable or Mythos models |
 | Surfaces | Chat for planning, Claude Code for building, GitHub for small issues |
 | Check-ins | Short answers; Claude speaks up only at operator-protocol moments. For a fixed format, fill the Response style line (customisation table) |
 | Attribution in commits and PRs | Off: the attribution block in .claude/settings.json, the Never rule in CLAUDE.md, and the commit check in /pre-pr; delete the block and the rule to keep Claude Code's default |
@@ -951,7 +951,7 @@ Run these in order. Each stage makes the next one safer and cheaper. Unless a st
 8. **Tighten over two or three features.** Repeated corrections go into CLAUDE.md, repeated prompts into commands, repeated mistakes into CI checks.
 9. **Hand over small issues.** Mention `@claude` on small, well-specified issues. Review every PR. Track cost per merged PR in your plan's usage.
 10. **Automate the merge path.** Once reviews are trusted, turn on auto-merge for PRs with green CI (plus an approval on team repos). Keep a person on anything touching security, data or money. A PR whose CI is already green merges the moment auto-merge is on, so test it with the recipe under Setup checks.
-11. **Maintain monthly.** The maintenance workflow opens an issue on the 1st; follow `maintenance.md`.
+11. **Maintain monthly.** The maintenance workflow opens an issue on the 1st; follow `maintenance.md`. Run it on haiku at low effort, and keep haiku sessions under 100k tokens (higher price above).
 
 **Setup checks (stage 6).** These are documented but not yet tested together. When one fails, fix the kit, not just the project:
 
@@ -982,7 +982,9 @@ The biggest savings come from sending less to the model, and from not using it w
 | Lever | Do this | Typical effect |
 | --- | --- | --- |
 | Lean context | CLAUDE.md under 100 lines; long material in `docs/`, linked | Cheaper every session |
-| Model and effort tiers | opus/high for design and security, sonnet/medium for building and review, haiku/low for docs and triage | Largest per-token saving |
+| Stable prefix | Cache hits cost 0.05x base on Opus and Sonnet 5.5 (0.1x others); 5-minute writes cost 1.25x. Do not switch model or toggle tools or MCP mid-session. To resume a large session after a long break, /handoff and start new | Cached input is cheap; changes break the cache |
+| Lean tools | Turn off unused connectors, MCP servers, browser and computer-use tools before a session; their definitions are re-sent on every request | Smaller input on every request |
+| Model and effort tiers | opus/high for design and security, sonnet/medium for building and review, haiku/low for docs and triage. As of Nov 2026: Opus 5.5 costs 2x Sonnet 5.5, Haiku 5.5 costs 1/20 of Sonnet, and output costs 5x input, so effort and short reports matter most | Largest per-token saving |
 | Sonnet main session | Run commands from a sonnet session; agents pick their own models | No Opus paying to coordinate |
 | Deterministic gates | Lint, types, tests and dependency audit in `ci.yml` before any review | No paying to find what a linter finds |
 | One review pass | Review lives in `pre-pr.md` only | No double reviews of one diff |
@@ -1036,8 +1038,9 @@ Keep the core as it is and change only the rows that apply. Record each change i
 
 ## Sources
 
-Checked on 2026-11-27.
+Checked on 2026-11-28.
 
+- [Claude API pricing](https://platform.claude.com/docs/en/about-claude/pricing)
 - [Claude Code: configure permissions](https://code.claude.com/docs/en/permissions)
 - [Claude Code: subagents](https://code.claude.com/docs/en/sub-agents)
 - [Claude Code: skills and commands](https://code.claude.com/docs/en/skills)

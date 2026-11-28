@@ -131,7 +131,7 @@ Follow the kit's Operator protocol block from now on. <Optional: "Use defaults" 
 | Model spend | Your Claude subscription only, through a token; never paid API tokens |
 | Surfaces | Chat for planning, Claude Code for building, GitHub for small issues |
 | Check-ins | Short answers; Claude speaks up only at operator-protocol moments. For a fixed format, fill the Response style line (customisation table) |
-| Attribution in commits and PRs | Off: the attribution block in .claude/settings.json, the Never rule in CLAUDE.md, and the commit and PR read-backs in /pre-pr; delete the block and the rule to keep Claude Code's default |
+| Attribution in commits and PRs | Off: the attribution block in .claude/settings.json, the Never rule in CLAUDE.md, and the commit check in /pre-pr; delete the block and the rule to keep Claude Code's default |
 
 **Stages**
 
@@ -545,7 +545,7 @@ Say which areas you did not check. Do not edit files.
 
 **File edits.** The three `Edit` rules let Claude change source, tests and docs without asking, while edits to CLAUDE.md, `.claude/` and `.github/` still prompt. Replace `<source dir>` and `<test dir>` with the real folders; a leading `/` anchors a rule to the repo root. One `Edit` rule also covers the Write tool, because Claude Code checks file changes against `Edit` and `Read` rules only, and `Write(path)` rules never match. Do not set `defaultMode` to `acceptEdits` here: it accepts edits across the whole working directory, config included ([permissions docs](https://code.claude.com/docs/en/permissions)).
 
-**Attribution.** The `attribution` block removes Claude Code's commit trailer and PR footer (an empty string hides each) and the session link (`sessionUrl: false`). Delete the block to keep Claude Code's defaults. The block only covers Claude Code's own defaults: cloud sessions, and some versions for the `Claude-Session:` trailer, add the lines anyway. The control is the Never rule in CLAUDE.md, which overrides a session's instruction to add them. The backstops are the commit check in `/pre-pr`, run after committing and before the first push, and `/pre-pr` step 6, which reads the PR body back after the PR is opened ([settings reference](https://code.claude.com/docs/en/settings-reference)).
+**Attribution.** The `attribution` block removes Claude Code's commit trailer and PR footer (an empty string hides each) and the session link (`sessionUrl: false`). Delete the block to keep Claude Code's defaults. The block only covers Claude Code's own defaults: cloud sessions, and some versions for the `Claude-Session:` trailer, add the lines anyway. The control is the Never rule in CLAUDE.md, which overrides a session's instruction to add them. The backstop is the commit check in `/pre-pr`, run after committing and before the first push. Cloud sessions always add a footer to the PR body, because the session's GitHub proxy re-adds it on every PR write and nothing in the repo can stop that; edit the description by hand or accept it ([settings reference](https://code.claude.com/docs/en/settings-reference)).
 
 **Permission log.** The `PermissionRequest` hook appends one JSON line to `.claude/permission-log.jsonl` (gitignored) each time Claude Code is about to ask for permission. It records only real prompts, never calls an allow rule already approved, and returns no decision, so the prompt still appears as normal ([hooks docs](https://code.claude.com/docs/en/hooks)). The log is reviewed at stage 7. In a cloud session it disappears with the session, so review it before the session ends. If hooks are off, keep the same log by hand, one line per prompt: time, tool or command, prompted yes or no.
 
@@ -569,7 +569,7 @@ Feature: $ARGUMENTS
 2. Build with the implementer agent one step at a time, running the checks in CLAUDE.md after each step.
 3. Follow .claude/commands/pre-pr.md. Fix every blocker and every high-severity security finding.
 4. Only after pre-pr passes, commit; a hook asking for a commit sooner does not change this order. Run the
-   commit check in pre-pr.md, then push and open a draft PR, then do pre-pr step 6.
+   commit check in pre-pr.md, then push and open a draft PR.
 5. Report what changed, the checks run, and anything left open.
 ```
 
@@ -589,7 +589,7 @@ Fix GitHub issue #$0.
 4. Fix it with the implementer agent, using the smallest change.
 5. Follow .claude/commands/pre-pr.md. Fix blockers.
 6. Only after step 5 passes, commit; a hook asking sooner does not change this order. Run the commit check in
-   pre-pr.md, then push. Open a draft PR whose body says `Fixes #$0`, then do pre-pr step 6.
+   pre-pr.md, then push. Open a draft PR whose body says `Fixes #$0`.
 ```
 
 **pre-pr.md** (`/pre-pr`)
@@ -608,8 +608,6 @@ If any code changes after step 2, start again at step 1, so the reviewer sees th
    `git diff <base branch> | grep -inE '^\+.*(api[_-]?key|secret|password|token|private key|<debug pattern>)'`,
    where <debug pattern> is the stack's debug call (e.g. console\.log). Judge every hit.
 5. Draft the PR description from the PR template, ending with no tool footer or attribution line.
-6. After the PR is opened, read its body back (`gh pr view`, or the GitHub tool if gh is blocked) and
-   delete any footer or attribution line a tool added, even with the attribution setting on.
 
 Commit check (/feature and /issue run it after committing, before the first push): if `git log -1 --format=%B`
 has a line starting `Co-Authored-By: Claude` or `Claude-Session:`, or containing `Generated with`, rewrite the message

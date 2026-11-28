@@ -9,5 +9,5 @@ Feature: $ARGUMENTS
 2. Build with the implementer agent one step at a time, running the checks in CLAUDE.md after each step.
 3. Follow .claude/commands/pre-pr.md. Fix every blocker and every high-severity security finding.
 4. Only after pre-pr passes, commit; a hook asking for a commit sooner does not change this order. Run the
-   commit check in pre-pr.md, then push and open a draft PR, then do pre-pr step 6.
+   commit check in pre-pr.md, then push and open a draft PR.
 5. Report what changed, the checks run, and anything left open.

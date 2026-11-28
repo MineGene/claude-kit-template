@@ -11,4 +11,4 @@ Fix GitHub issue #$0.
 4. Fix it with the implementer agent, using the smallest change.
 5. Follow .claude/commands/pre-pr.md. Fix blockers.
 6. Only after step 5 passes, commit; a hook asking sooner does not change this order. Run the commit check in
-   pre-pr.md, then push. Open a draft PR whose body says `Fixes #$0`, then do pre-pr step 6.
+   pre-pr.md, then push. Open a draft PR whose body says `Fixes #$0`.

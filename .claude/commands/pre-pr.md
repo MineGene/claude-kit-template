@@ -11,8 +11,6 @@ If any code changes after step 2, start again at step 1, so the reviewer sees th
    `git diff <base branch> | grep -inE '^\+.*(api[_-]?key|secret|password|token|private key|<debug pattern>)'`,
    where <debug pattern> is the stack's debug call (e.g. console\.log). Judge every hit.
 5. Draft the PR description from the PR template, ending with no tool footer or attribution line.
-6. After the PR is opened, read its body back (`gh pr view`, or the GitHub tool if gh is blocked) and
-   delete any footer or attribution line a tool added, even with the attribution setting on.
 
 Commit check (/feature and /issue run it after committing, before the first push): if `git log -1 --format=%B`
 has a line starting `Co-Authored-By: Claude` or `Claude-Session:`, or containing `Generated with`, rewrite the message

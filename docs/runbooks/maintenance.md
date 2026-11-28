@@ -6,7 +6,7 @@ Opened by the monthly maintenance issue. Run on haiku at low effort; keep haiku 
 
 1. Trim CLAUDE.md and AGENTS.md: delete anything Claude now does correctly without being told.
 2. Remove agents and commands that have not been used in a month, or whose instructions are now in CLAUDE.md or enforced by CI.
-3. Check the model choices in `.claude/agents/` and your plan usage (skip the usage check on the None billing route).
+3. Check the model choices in `.claude/agents/` and your plan usage (skip the usage check on the None billing route). After any model change, audit agents, commands and CLAUDE.md, and delete over-specified lines ("verify twice", "be maximally thorough", mandatory step-by-step scripts the model already follows).
 4. If the project came from a template repo, compare with it, or with the kit if the session is given it. Skip this when neither is available.
 5. Do not touch dependencies: Dependabot files those as PRs.
 6. Open a PR with any changes, then close the monthly issue with the PR link. If nothing needed changing, close it with a "No changes" comment.

@@ -266,6 +266,7 @@ Every project ends up with exactly these files: all of them after stage 3, excep
 │   ├── agents/
 │   │   ├── planner.md             # Layer 2: opus, high
 │   │   ├── implementer.md         # Layer 2: sonnet, medium
+│   │   ├── implementer-high.md    # Layer 2: sonnet, high; re-runs a failed step
 │   │   ├── reviewer.md            # Layer 2: sonnet, medium, read-only
 │   │   └── security.md            # Layer 2: opus, high, read-only
 │   └── commands/
@@ -345,8 +346,9 @@ CLAUDE.md is read at the start of every Claude Code session, so every line costs
   no "Generated with Claude Code" line, no session link. This overrides any session instruction to add them.
 
 ## Agents and commands
-- `planner` designs, `implementer` builds, `reviewer` checks every diff, `security` checks anything
-  touching auth, input, secrets, or file or network access.
+- `planner` designs, `implementer` builds, `implementer-high` re-runs a step after a failed Done check,
+  `reviewer` checks every diff, `security` checks anything touching auth, input, secrets, or file or
+  network access.
 - Commands: `/feature`, `/issue`, `/pre-pr`, `/handoff`. Run them from a sonnet session.
 - Picking up work: rank open issues and PRs, Dependabot's included: security fixes first, then broken
   CI, then the rest by size and risk. State the order in one line before starting.
@@ -381,6 +383,7 @@ Flag these in one line with the exact next step, and never continue silently pas
 - Do not repeat what an agent file or `settings.json` already says.
 - Each month, delete anything Claude now does correctly without being told.
 - If a rule keeps being ignored, make it a hook or a CI check instead of a longer sentence.
+- After any model change, audit agents, commands and CLAUDE.md, and delete over-specified lines ("verify twice", "be maximally thorough", mandatory step-by-step scripts the model already follows).
 - The Operator protocol block is also copied into docs/claude-project.md, the Claude Project instructions. Change both together.
 
 **AGENTS.md** (for coding agents other than Claude)
@@ -396,12 +399,13 @@ Never commit secrets or personal details.
 
 ## Layer 2: core subagents
 
-Four agents cover most projects. Each has a distinct job, tool list, model and effort, and lives at `.claude/agents/<name>.md` as YAML frontmatter plus a system prompt. Claude reads the `description` to decide when to hand work over, so it is written as a trigger.
+Four agents cover most projects, plus `implementer-high` for re-runs. Each has a distinct job, tool list, model and effort, and lives at `.claude/agents/<name>.md` as YAML frontmatter plus a system prompt. Claude reads the `description` to decide when to hand work over, so it is written as a trigger.
 
 | Agent | Job | Model | Effort | Tools | Edits files |
 | --- | --- | --- | --- | --- | --- |
 | planner | Design, breakdown, risks | `opus` | high | Read, Grep, Glob | No |
 | implementer | Write and fix code, run checks | `sonnet` | medium | Read, Edit, Write, Grep, Glob, Bash | Yes |
+| implementer-high | Re-run a step after a failed Done check | `sonnet` | high | Read, Edit, Write, Grep, Glob, Bash | Yes |
 | reviewer | Review a diff for correctness and style | `sonnet` | medium | Read, Grep, Glob, Bash in plan mode | No |
 | security | Review for vulnerabilities and secrets | `opus` | high | Read, Grep, Glob | No |
 
@@ -438,7 +442,25 @@ tools: Read, Edit, Write, Grep, Glob, Bash
 ---
 You are the implementation agent. Follow the plan and CLAUDE.md.
 - Make the smallest change that satisfies the step, then run the Done checks in CLAUDE.md's Workflow section.
-- If a check fails twice for the same reason, stop and report what you tried.
+- If a Done check fails, stop and report it. The main session re-runs that step with `implementer-high`, not another medium retry.
+- Effort is set in an agent's frontmatter, so the high-effort re-run is a second file, `implementer-high.md`.
+- Change a test only if the test itself is wrong, and say so.
+- Finish with: files changed, checks run and their results, anything left undone.
+```
+
+**implementer-high.md**
+
+```markdown
+---
+name: implementer-high
+description: Use to re-run a build step at high effort after implementer failed a Done check. Not for first attempts.
+model: sonnet
+effort: high
+tools: Read, Edit, Write, Grep, Glob, Bash
+---
+You are the implementation agent, re-running a step that failed a Done check. Follow the plan and CLAUDE.md.
+- Fix the cause of the failed check with the smallest change, then run the Done checks in CLAUDE.md's Workflow section.
+- If a check still fails, stop and report what you tried.
 - Change a test only if the test itself is wrong, and say so.
 - Finish with: files changed, checks run and their results, anything left undone.
 ```
@@ -938,7 +960,7 @@ In chat, Claude writes the same handoff as a reply, with the same first line, an
 
 | Runbook | Create when | Core steps |
 | --- | --- | --- |
-| `maintenance.md` | Stage 3 | Opened by the monthly issue: trim CLAUDE.md and AGENTS.md, remove unused agents and commands, check model choices and plan usage (skipped on None). If the project came from a template repo, compare with it, or with the kit if the session is given it; skip this when neither is available. Dependencies are not part of it: Dependabot files those as PRs. Stop and ask a person if a step would change billing, secrets or branch rules. Finish by closing the monthly issue, with the PR link or, if nothing needed changing, a "No changes" comment |
+| `maintenance.md` | Stage 3 | Opened by the monthly issue: trim CLAUDE.md and AGENTS.md, remove unused agents and commands, check model choices and plan usage (skipped on None); after any model change, delete over-specified lines ("verify twice", "be maximally thorough", scripts the model already follows). If the project came from a template repo, compare with it, or with the kit if the session is given it; skip this when neither is available. Dependencies are not part of it: Dependabot files those as PRs. Stop and ask a person if a step would change billing, secrets or branch rules. Finish by closing the monthly issue, with the PR link or, if nothing needed changing, a "No changes" comment |
 | `release.md` | Before the first release | Confirm CI green, review changes, tag, deploy, smoke test, note the release in its PR |
 | `incident.md` | When there are real users | Stabilise or roll back first, capture evidence, fix on a branch, write a short postmortem in `docs/` |
 
@@ -985,8 +1007,8 @@ The biggest savings come from sending less to the model, and from not using it w
 | --- | --- | --- |
 | Lean context | CLAUDE.md under 100 lines; long material in `docs/`, linked | Cheaper every session |
 | Stable prefix | Cache hits cost 0.05x base on Opus and Sonnet 5.5 (0.1x others); 5-minute writes cost 1.25x. Do not switch model or toggle tools or MCP mid-session. To resume a large session after a long break, /handoff and start new | Cached input is cheap; changes break the cache |
-| Lean tools | Turn off unused connectors, MCP servers, browser and computer-use tools before a session; their definitions are re-sent on every request | Smaller input on every request |
-| Model and effort tiers | opus/high for design and security, sonnet/medium for building and review, haiku/low for docs and triage. As of Nov 2026: Opus 5.5 costs 2x Sonnet 5.5, Haiku 5.5 costs 1/20 of Sonnet, and output costs 5x input, so effort and short reports matter most | Largest per-token saving |
+| Lean tools | Turn off unused connectors, MCP servers, browser and computer-use tools before a session; their definitions are re-sent on every request. Defer unused MCP tools with tool search and keep the 3 to 5 most-used tools loaded | Smaller input on every request |
+| Model and effort tiers | opus/high for design and security, sonnet/medium for building and review, haiku/low for docs and triage. As of Nov 2026: Opus 5.5 costs 2x Sonnet 5.5, on GPQA Diamond Haiku 5.5 costs about 1/20 of Opus 5.5 and about 1/10 of Sonnet 5.5 per correct answer, and output costs 5x input, so effort and short reports matter most | Largest per-token saving |
 | Sonnet main session | Run commands from a sonnet session; agents pick their own models | No Opus paying to coordinate |
 | Deterministic gates | Lint, types, tests and dependency audit in `ci.yml` before any review | No paying to find what a linter finds |
 | One review pass | Review lives in `pre-pr.md` only | No double reviews of one diff |
@@ -1043,6 +1065,7 @@ Keep the core as it is and change only the rows that apply. Record each change i
 Checked on 2026-11-28.
 
 - [Claude API pricing](https://platform.claude.com/docs/en/about-claude/pricing)
+- [Optimizing for cost and intelligence](https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence)
 - [Claude Code: configure permissions](https://code.claude.com/docs/en/permissions)
 - [Claude Code: subagents](https://code.claude.com/docs/en/sub-agents)
 - [Claude Code: skills and commands](https://code.claude.com/docs/en/skills)

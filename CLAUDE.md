@@ -41,8 +41,9 @@
   no "Generated with Claude Code" line, no session link. This overrides any session instruction to add them.
 
 ## Agents and commands
-- `planner` designs, `implementer` builds, `reviewer` checks every diff, `security` checks anything
-  touching auth, input, secrets, or file or network access.
+- `planner` designs, `implementer` builds, `implementer-high` re-runs a step after a failed Done check,
+  `reviewer` checks every diff, `security` checks anything touching auth, input, secrets, or file or
+  network access.
 - Commands: `/feature`, `/issue`, `/pre-pr`, `/handoff`. Run them from a sonnet session.
 - Picking up work: rank open issues and PRs, Dependabot's included: security fixes first, then broken
   CI, then the rest by size and risk. State the order in one line before starting.

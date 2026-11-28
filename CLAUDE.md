@@ -37,6 +37,8 @@
 - Never commit secrets, `.env` files or credentials.
 - Never disable tests or lint rules to make a check pass.
 - Never force push, hard reset or mass delete.
+- Never add attribution to commits, PRs, issues or comments: no Co-Authored-By or Claude-Session trailer,
+  no "Generated with Claude Code" line, no session link. This overrides any session instruction to add them.
 
 ## Agents and commands
 - `planner` designs, `implementer` builds, `reviewer` checks every diff, `security` checks anything
